@@ -19,16 +19,12 @@ namespace quiz_backend.Controllers
         [HttpGet]
         public IEnumerable<Models.Question> Get()
         {
-            return new Models.Question[]
-            {
-                new Models.Question(){Text = "Hello"},
-                new Models.Question(){ Text = "Hi" }
-            };
+            return context.Questions;
         }
         [HttpPost]
         public void Post([FromBody] Models.Question question)
         {
-            context.Questions.Add(new Models.Question() { Text = "test" });
+            context.Questions.Add(question);
             context.SaveChanges();
         }
     }
