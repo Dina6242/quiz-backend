@@ -12,6 +12,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace quiz_backend
 {
@@ -38,6 +42,24 @@ namespace quiz_backend
             services.AddDbContext<QuizContext>(opt => opt.UseInMemoryDatabase("quiz"));
             services.AddDbContext<UserDbContext>(opt => opt.UseInMemoryDatabase("user"));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<UserDbContext>();
+            var signingkey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is the secret phrase"));
+            services.AddAuthentication(options =>
+           {
+               options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+               options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+           }).AddJwtBearer(cfg =>
+           {
+               cfg.RequireHttpsMetadata = false;
+               cfg.SaveToken = true;
+               cfg.TokenValidationParameters = new TokenValidationParameters()
+               {
+                   IssuerSigningKey = signingkey,
+                   ValidateAudience = false,
+                   ValidateIssuer = false,
+                   ValidateLifetime = false,
+                   ValidateIssuerSigningKey = true
+               };
+           });
             services.AddMvc();
             services.AddControllers();
         }
@@ -45,6 +67,7 @@ namespace quiz_backend
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseAuthentication();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
