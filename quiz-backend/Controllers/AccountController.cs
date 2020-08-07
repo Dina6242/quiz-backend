@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -35,9 +36,13 @@ namespace quiz_backend.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
             await signInManager.SignInAsync(user, isPersistent: false);
+            var clamis = new Claim[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id)
+            };
             var signingkey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is the secret phrase"));
             var signingCredentials = new SigningCredentials(signingkey, SecurityAlgorithms.HmacSha256);
-            var jwt = new JwtSecurityToken(signingCredentials: signingCredentials );
+            var jwt = new JwtSecurityToken(signingCredentials: signingCredentials,claims: clamis );
             return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
         }
     }
