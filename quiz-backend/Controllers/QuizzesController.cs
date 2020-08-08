@@ -30,6 +30,12 @@ namespace quiz_backend.Controllers
             var userId = HttpContext.User.Claims.First().Value;
             return _context.quiz.Where(q => q.ownerId == userId);
         }
+    
+        [HttpGet("all")]
+        public IEnumerable<quiz> GetAllQuizzes()
+        {
+            return _context.quiz;
+        }
 
         // GET: api/Quizzes/5
         [HttpGet("{id}")]
